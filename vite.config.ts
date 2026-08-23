@@ -31,16 +31,9 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ["**/*.{js,css,html,svg,woff,woff2}"],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-            handler: "CacheFirst",
-            options: {
-              cacheName: "google-fonts-cache",
-              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
-            },
-          },
-        ],
+        navigateFallback: "/index.html",
+        navigateFallbackAllowlist: [/^\//],
+        runtimeCaching: [],
       },
     }),
   ],
@@ -65,7 +58,7 @@ export default defineConfig({
             "@radix-ui/react-tooltip",
           ],
           "framer-motion": ["framer-motion"],
-          "charts": ["recharts"],
+
         },
         chunkFileNames: "assets/[name]-[hash].js",
         entryFileNames: "assets/[name]-[hash].js",

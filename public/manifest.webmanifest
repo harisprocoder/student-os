@@ -1,19 +1,28 @@
 {
-  "name": "Student OS",
+  "name": "DAE Student OS — Offline Student Productivity Workspace",
   "short_name": "Student OS",
-  "description": "Your entire academic life in one offline workspace.",
+  "description": "An offline-first student workspace for managing assignments, notes, timetable, attendance, exams, study plans, goals, and academic progress.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#4f46e5",
   "orientation": "portrait-primary",
   "categories": ["education", "productivity"],
+  "lang": "en",
+  "dir": "ltr",
   "icons": [
     {
-      "src": "/logo.svg",
+      "src": "/favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
     }
   ]
 }
