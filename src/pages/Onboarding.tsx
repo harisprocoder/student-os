@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "framer-motion";
-import { updateSettings, getSettings } from "@/db/database";
+import { updateSettings } from "@/db/database";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, ArrowRight, Sparkles, BookOpen, Target, Check } from "lucide-react";
+import { ArrowLeft, ArrowRight, Sparkles, Check } from "lucide-react";
 
 const SUBJECT_COLORS = ["#6366f1", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899"];
 

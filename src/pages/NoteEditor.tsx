@@ -5,7 +5,6 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useNotes } from "@/hooks/useNotes";
 import { useSubjects } from "@/hooks/useSubjects";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Eye, Edit3, Save } from "lucide-react";
 import { toast } from "sonner";
@@ -32,11 +31,12 @@ export default function NoteEditor() {
     if (id) {
       const note = notes.find((n) => n.id === id);
       if (note) {
-        setTitle(note.title);
-        setContent(note.content);
-        setSubjectId(note.subjectId || "");
-        setFolder(note.folder);
-        setTags(note.tags.join(", "));
+        const { title, content, subjectId, folder, tags } = note;
+        setTitle(title);
+        setContent(content);
+        setSubjectId(subjectId || "");
+        setFolder(folder);
+        setTags(tags.join(", "));
         setIsLoaded(true);
         isInitialized.current = true;
       }

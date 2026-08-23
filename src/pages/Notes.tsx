@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { motion } from "framer-motion";
 import { useSubjects } from "@/hooks/useSubjects";
 import { useNotes } from "@/hooks/useNotes";
@@ -10,7 +10,6 @@ import {
   Pin,
   Star,
   Trash2,
-  ArrowLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

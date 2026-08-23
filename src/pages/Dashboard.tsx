@@ -13,9 +13,6 @@ import {
   Timer,
   Target,
   ArrowRight,
-  Clock,
-  TrendingUp,
-  AlertCircle,
 } from "lucide-react";
 
 const stagger = {
@@ -90,9 +87,11 @@ export default function Dashboard() {
     [assignments]
   );
 
+  const now = Date.now();
+
   const upcomingExams = useMemo(
-    () => exams.filter((e) => e.date >= Date.now()).slice(0, 3),
-    [exams]
+    () => exams.filter((e) => e.date >= now).slice(0, 3),
+    [exams, now]
   );
 
   const attendancePct = useMemo(() => {
@@ -111,14 +110,14 @@ export default function Dashboard() {
   }, [sessions]);
 
   const weeklyStudyMin = useMemo(() => {
-    const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    const weekAgo = now - 7 * 24 * 60 * 60 * 1000;
     return sessions
       .filter((s) => s.date >= weekAgo && s.completed)
       .reduce((sum, s) => sum + s.duration, 0);
   }, [sessions]);
 
   const nextExam = useMemo(() => {
-    const upcoming = exams.filter((e) => e.date >= Date.now());
+    const upcoming = exams.filter((e) => e.date >= now);
     return upcoming.length > 0 ? upcoming[0] : null;
   }, [exams]);
 

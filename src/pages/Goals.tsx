@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { format, differenceInDays } from "date-fns";
 import { useGoals } from "@/hooks/useGoals";
-import type { Goal, Subtask } from "@/types";
+import type { Goal } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,13 +17,13 @@ export default function Goals() {
   const [editId, setEditId] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [newSubtask, setNewSubtask] = useState("");
-  const [form, setForm] = useState({
+  const [form, setForm] = useState(() => ({
     title: "",
     description: "",
     deadline: format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"),
     priority: "medium" as "low" | "medium" | "high",
     subtasks: [] as { id: string; text: string; completed: boolean }[],
-  });
+  }));
 
   const resetForm = () => {
     setForm({ title: "", description: "", deadline: format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"), priority: "medium", subtasks: [] });
@@ -47,7 +47,6 @@ export default function Goals() {
     };
     try {
       if (editId) {
-        const goal = goals.find((g) => g.id === editId);
         const allDone = data.subtasks.length > 0 && data.subtasks.every((s) => s.completed);
         await updateGoal(editId, { ...data, completed: allDone });
         toast.success("Goal updated");

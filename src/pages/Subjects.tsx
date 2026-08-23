@@ -7,7 +7,6 @@ import { useAssignments } from "@/hooks/useAssignments";
 import {
   Plus,
   BookOpen,
-  MoreHorizontal,
   Pencil,
   Trash2,
   Users,
@@ -38,7 +37,6 @@ const SUBJECT_COLORS = [
   "#06b6d4",
 ];
 
-const SUBJECT_ICONS = ["database", "monitor", "hard-drive", "wifi", "code", "atom", "brain", "calculator"];
 
 export default function Subjects() {
   const { subjects, loading, addSubject, updateSubject, deleteSubject } = useSubjects();

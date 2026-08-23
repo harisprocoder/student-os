@@ -18,7 +18,7 @@ export function useSettings() {
   }, []);
 
   useEffect(() => {
-    refresh();
+    void refresh();
   }, [refresh]);
 
   const update = useCallback(

@@ -6,7 +6,7 @@ import { db } from "@/db/database";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Play, Pause, RotateCcw, SkipForward, CheckCircle2, Timer } from "lucide-react";
+import { Play, Pause, RotateCcw, SkipForward, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 
 const PRESETS = {
@@ -32,6 +32,7 @@ export default function StudyTimer() {
   const [showComplete, setShowComplete] = useState(false);
   const [todayTotal, setTodayTotal] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const handleSessionCompleteRef = useRef<() => Promise<void>>(() => Promise.resolve());
 
   // Load today's total
   const loadTodayTotal = useCallback(async () => {
@@ -42,32 +43,7 @@ export default function StudyTimer() {
     setTodayTotal(total);
   }, []);
 
-  useEffect(() => { loadTodayTotal(); }, [loadTodayTotal]);
-
-  // Timer tick - timestamp based
-  useEffect(() => {
-    if (store.mode === "focus" || store.mode === "break") {
-      const tick = () => {
-        const rem = store.getRemainingMs();
-        setRemaining(rem);
-        if (rem <= 0) {
-          if (store.mode === "focus") {
-            // Session complete
-            handleSessionComplete();
-          }
-          store.setMode(store.mode === "focus" ? "break" : "idle");
-        }
-      };
-      tick();
-      intervalRef.current = setInterval(tick, 250);
-      return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-    } else {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-      setRemaining(0);
-    }
-  }, [store.mode, store.endTimestamp]);
-
-  const handleSessionComplete = async () => {
+  const handleSessionComplete = useCallback(async () => {
     const duration = store.focusDuration;
     const now = Date.now();
     await db.studySessions.add({
@@ -87,7 +63,36 @@ export default function StudyTimer() {
     setShowSetup(false);
     loadTodayTotal();
     toast.success("Study session complete! 🎉");
-  };
+  }, [store, subjectId, topic, loadTodayTotal]);
+
+  // Keep ref in sync
+  handleSessionCompleteRef.current = handleSessionComplete;
+
+  useEffect(() => {
+    void loadTodayTotal();
+  }, [loadTodayTotal]);
+
+  // Timer tick - timestamp based
+  useEffect(() => {
+    if (store.mode === "focus" || store.mode === "break") {
+      const tick = () => {
+        const rem = store.getRemainingMs();
+        setRemaining(rem);
+        if (rem <= 0) {
+          if (store.mode === "focus") {
+            void handleSessionCompleteRef.current();
+          }
+          store.setMode(store.mode === "focus" ? "break" : "idle");
+        }
+      };
+      tick();
+      intervalRef.current = setInterval(tick, 250);
+      return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+    } else {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      setRemaining(0);
+    }
+  }, [store.mode, store.endTimestamp]);
 
   const startTimer = () => {
     const preset = PRESETS[store.timerPreset];
@@ -96,195 +101,225 @@ export default function StudyTimer() {
     setShowSetup(false);
   };
 
+  const [pausedRemaining, setPausedRemaining] = useState(0);
+
   const pauseTimer = () => {
+    const rem = store.getRemainingMs();
+    setPausedRemaining(rem);
     store.pauseTimer();
-    setShowSetup(false);
   };
 
   const resumeTimer = () => {
-    const rem = store.getRemainingMs();
-    if (rem > 0) store.resumeTimer(rem);
+    store.resumeTimer(pausedRemaining);
+    setPausedRemaining(0);
   };
 
   const resetTimer = () => {
     store.resetTimer();
     setShowSetup(true);
     setShowComplete(false);
+    setRemaining(0);
   };
 
-  const skipSession = () => {
+  const skipTimer = () => {
     if (store.mode === "focus") {
-      handleSessionComplete();
+      void handleSessionComplete();
+    } else {
+      store.setMode("idle");
+      setShowSetup(true);
+      setRemaining(0);
     }
-    store.resetTimer();
-    setShowSetup(true);
-    setShowComplete(false);
   };
 
-  const circumference = 2 * Math.PI * 120;
-  const focusDurationMs = (store.timerPreset === "custom" ? store.focusDuration : PRESETS[store.timerPreset].focus) * 60 * 1000;
-  const progress = focusDurationMs > 0 ? 1 - remaining / focusDurationMs : 0;
+  const preset = PRESETS[store.timerPreset];
+  const totalMs = (store.timerPreset === "custom" ? store.focusDuration : preset.focus) * 60 * 1000;
+  const progress = totalMs > 0 ? ((totalMs - remaining) / totalMs) * 100 : 0;
 
+  // Show setup
+  if (showSetup) {
+    return (
+      <div className="max-w-lg mx-auto space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Study Timer</h1>
+          <p className="text-sm text-muted-foreground mt-1">Focus mode for productive study sessions</p>
+        </div>
+
+        <div className="rounded-xl border border-border/60 bg-card p-6 space-y-6">
+          <div className="space-y-2">
+            <Label>Timer Mode</Label>
+            <div className="grid grid-cols-3 gap-2">
+              {(Object.keys(PRESETS) as Array<keyof typeof PRESETS>).map((key) => (
+                <button
+                  key={key}
+                  onClick={() => store.setTimerPreset(key)}
+                  className={`rounded-lg border p-3 text-center transition-all ${
+                    store.timerPreset === key
+                      ? "border-indigo-500 bg-indigo-500/10 text-indigo-600"
+                      : "border-border/60 hover:border-border"
+                  }`}
+                >
+                  <p className="text-sm font-medium">{PRESETS[key].label}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{PRESETS[key].focus}/{PRESETS[key].break} min</p>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {store.timerPreset === "custom" && (
+            <div className="space-y-2">
+              <Label>Focus Duration (minutes)</Label>
+              <Input
+                type="number"
+                min={1}
+                max={180}
+                value={store.focusDuration}
+                onChange={(e) => store.setFocusDuration(Number(e.target.value) || 25)}
+              />
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <Label>Subject</Label>
+            <select
+              value={subjectId}
+              onChange={(e) => setSubjectId(e.target.value)}
+              className="w-full rounded-lg border border-border/60 bg-background px-3 py-2 text-sm"
+            >
+              <option value="">No subject</option>
+              {subjects.map((s) => (
+                <option key={s.id} value={s.id}>{s.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Topic (optional)</Label>
+            <Input
+              placeholder="What are you studying?"
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+            />
+          </div>
+
+          <Button onClick={startTimer} className="w-full" size="lg">
+            <Play className="size-4 mr-2" />
+            Start Focus Session
+          </Button>
+        </div>
+
+        {todayTotal > 0 && (
+          <div className="rounded-xl border border-border/60 bg-card p-4 text-center">
+            <p className="text-sm text-muted-foreground">Today's study time</p>
+            <p className="text-2xl font-bold mt-1">{todayTotal} min</p>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Show complete
+  if (showComplete) {
+    return (
+      <div className="max-w-lg mx-auto space-y-6">
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="rounded-xl border border-border/60 bg-card p-8 text-center"
+        >
+          <CheckCircle2 className="mx-auto size-16 text-emerald-500" />
+          <h2 className="text-xl font-bold mt-4">Session Complete!</h2>
+          <p className="text-muted-foreground mt-2">Great work on your study session</p>
+          <div className="grid grid-cols-2 gap-4 mt-6">
+            <div className="rounded-lg bg-muted/50 p-3">
+              <p className="text-2xl font-bold">{store.focusDuration}m</p>
+              <p className="text-xs text-muted-foreground">Focus Time</p>
+            </div>
+            <div className="rounded-lg bg-muted/50 p-3">
+              <p className="text-2xl font-bold">{todayTotal}m</p>
+              <p className="text-xs text-muted-foreground">Today Total</p>
+            </div>
+          </div>
+          <Button onClick={resetTimer} className="mt-6" size="lg">
+            Back to Setup
+          </Button>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // Show timer
   return (
-    <div className="space-y-6">
+    <div className="max-w-lg mx-auto space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Study Timer</h1>
-        <p className="text-sm text-muted-foreground">Focus sessions with Pomodoro technique</p>
+        <p className="text-sm text-muted-foreground mt-1">
+          {store.mode === "focus" ? "Focusing" : "On Break"} · {preset.label}
+        </p>
       </div>
 
-      <div className="flex flex-col items-center gap-6">
+      <div className="rounded-xl border border-border/60 bg-card p-8">
         {/* Timer Display */}
-        <div className="relative">
-          <svg className="size-64 -rotate-90" viewBox="0 0 256 256">
-            <circle cx="128" cy="128" r="120" fill="none" stroke="currentColor" strokeWidth="4" className="text-muted/50" />
+        <div className="relative flex items-center justify-center">
+          <svg className="size-48" viewBox="0 0 200 200">
             <circle
-              cx="128" cy="128" r="120" fill="none"
-              stroke="url(#timer-gradient)"
+              cx="100"
+              cy="100"
+              r="90"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="6"
+              className="text-muted/30"
+            />
+            <circle
+              cx="100"
+              cy="100"
+              r="90"
+              fill="none"
+              stroke={store.mode === "focus" ? "#6366f1" : "#10b981"}
               strokeWidth="6"
               strokeLinecap="round"
-              strokeDasharray={circumference}
-              strokeDashoffset={circumference * (1 - progress)}
-              className="transition-all duration-300"
+              strokeDasharray={`${2 * Math.PI * 90}`}
+              strokeDashoffset={`${2 * Math.PI * 90 * (1 - progress / 100)}`}
+              transform="rotate(-90 100 100)"
+              className="transition-all duration-250"
             />
-            <defs>
-              <linearGradient id="timer-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#6366f1" />
-                <stop offset="100%" stopColor="#8b5cf6" />
-              </linearGradient>
-            </defs>
           </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <p className="text-5xl font-mono font-bold tracking-wider">
-              {store.mode === "idle" && !showComplete
-                ? formatTime(focusDurationMs)
-                : formatTime(remaining)}
-            </p>
+          <div className="absolute text-center">
+            <p className="text-4xl font-bold font-mono tracking-tight">{formatTime(remaining)}</p>
             <p className="text-sm text-muted-foreground mt-1">
-              {store.mode === "focus" ? "Focusing..." : store.mode === "break" ? "Break" : showComplete ? "Complete!" : "Ready to focus"}
+              {store.mode === "focus" ? "Focus" : "Break"}
             </p>
           </div>
         </div>
 
-        {/* Session Complete */}
-        {showComplete && (
-          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="text-center">
-            <CheckCircle2 className="mx-auto size-12 text-emerald-500 mb-2" />
-            <h3 className="text-lg font-semibold">Study session complete 🎉</h3>
-            <p className="text-sm text-muted-foreground mt-1">
-              {store.focusDuration} minutes studied · Today: {todayTotal + store.focusDuration}m
-            </p>
-            <Button onClick={() => { setShowComplete(false); setShowSetup(true); store.resetTimer(); }} className="mt-4">
-              Start Another Session
+        {/* Controls */}
+        <div className="flex items-center justify-center gap-3 mt-8">
+          <Button variant="outline" size="icon" onClick={resetTimer} title="Reset">
+            <RotateCcw className="size-4" />
+          </Button>
+          {store.mode === "focus" ? (
+            <Button size="lg" onClick={pauseTimer} className="px-8">
+              <Pause className="size-4 mr-2" />
+              Pause
             </Button>
-          </motion.div>
-        )}
-
-        {/* Setup (when idle) */}
-        {showSetup && store.mode === "idle" && !showComplete && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="w-full max-w-sm space-y-4">
-            {/* Presets */}
-            <div className="space-y-2">
-              <Label>Mode</Label>
-              <div className="flex gap-2">
-                {Object.entries(PRESETS).map(([key, preset]) => (
-                  <button
-                    key={key}
-                    onClick={() => {
-                      store.setTimerPreset(key as keyof typeof PRESETS);
-                      if (key !== "custom") {
-                        store.setFocusDuration(preset.focus);
-                        store.setBreakDuration(preset.break);
-                      }
-                    }}
-                    className={`flex-1 rounded-lg border py-2 text-xs font-medium transition-all ${
-                      store.timerPreset === key
-                        ? "border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400"
-                        : "border-border text-muted-foreground"
-                    }`}
-                  >
-                    {preset.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {store.timerPreset === "custom" && (
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-2">
-                  <Label>Focus (min)</Label>
-                  <Input type="number" min={1} value={store.focusDuration} onChange={(e) => store.setFocusDuration(Number(e.target.value))} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Break (min)</Label>
-                  <Input type="number" min={1} value={store.breakDuration} onChange={(e) => store.setBreakDuration(Number(e.target.value))} />
-                </div>
-              </div>
-            )}
-
-            <div className="space-y-2">
-              <Label>Subject</Label>
-              <select value={subjectId} onChange={(e) => setSubjectId(e.target.value)} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm">
-                <option value="">No subject</option>
-                {subjects.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-              </select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Topic</Label>
-              <Input value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="What are you studying?" />
-            </div>
-
-            <Button onClick={startTimer} className="w-full gap-2" size="lg">
-              <Play className="size-4" /> Start Focus
+          ) : pausedRemaining > 0 ? (
+            <Button size="lg" onClick={resumeTimer} className="px-8">
+              <Play className="size-4 mr-2" />
+              Resume
             </Button>
-          </motion.div>
-        )}
-
-        {/* Controls (when running) */}
-        {(store.mode === "focus" || store.mode === "break") && (
-          <div className="flex items-center gap-3">
-            <Button variant="outline" size="icon-lg" onClick={resetTimer}>
-              <RotateCcw className="size-5" />
+          ) : (
+            <Button variant="outline" size="icon" onClick={skipTimer} title="Skip">
+              <SkipForward className="size-4" />
             </Button>
-            {store.mode === "focus" ? (
-              <Button size="icon-lg" onClick={pauseTimer} className="rounded-full size-16">
-                <Pause className="size-6" />
-              </Button>
-            ) : (
-              <Button size="icon-lg" onClick={resumeTimer} className="rounded-full size-16">
-                <Play className="size-6" />
-              </Button>
-            )}
-            <Button variant="outline" size="icon-lg" onClick={skipSession}>
-              <SkipForward className="size-5" />
-            </Button>
-          </div>
-        )}
-
-        {/* Paused state */}
-        {store.mode === "idle" && !showSetup && !showComplete && (
-          <div className="flex items-center gap-3">
-            <Button variant="outline" size="icon-lg" onClick={resetTimer}>
-              <RotateCcw className="size-5" />
-            </Button>
-            <Button size="icon-lg" onClick={resumeTimer} className="rounded-full size-16">
-              <Play className="size-6" />
-            </Button>
-          </div>
-        )}
-
-        {/* Today's Stats */}
-        <div className="flex items-center gap-6 text-center">
-          <div>
-            <p className="text-2xl font-bold">{todayTotal}m</p>
-            <p className="text-xs text-muted-foreground">Today</p>
-          </div>
-          <div className="h-8 w-px bg-border" />
-          <div>
-            <p className="text-2xl font-bold">{store.completedSessions}</p>
-            <p className="text-xs text-muted-foreground">Sessions</p>
-          </div>
+          )}
+          <Button variant="outline" size="icon" onClick={skipTimer} title="Skip">
+            <SkipForward className="size-4" />
+          </Button>
         </div>
+      </div>
+
+      <div className="text-center text-sm text-muted-foreground">
+        Today: {todayTotal} min studied
       </div>
     </div>
   );

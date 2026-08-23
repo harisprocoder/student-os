@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import { useUIStore } from "@/stores";
 import { getSettings, updateSettings, exportAllData, importAllData, clearAllData, getStorageEstimate } from "@/db/database";
 import { loadDemoData, clearDemoData } from "@/db/seed";
@@ -8,14 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Settings as SettingsIcon,
   Moon,
   Sun,
   Monitor,
   Download,
   Upload,
   Trash2,
-  Database,
   HardDrive,
   Sparkles,
 } from "lucide-react";
@@ -67,9 +64,9 @@ export default function Settings() {
       if (!file) return;
       try {
         const text = await file.text();
-        const data = JSON.parse(text);
+        const data = JSON.parse(text) as Record<string, unknown>;
         if (!confirm("This will replace all current data. Continue?")) return;
-        await importAllData(data as any);
+        await importAllData(data as unknown as Parameters<typeof importAllData>[0]);
         toast.success("Backup restored successfully");
         window.location.reload();
       } catch {

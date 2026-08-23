@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { format, differenceInDays, differenceInHours, differenceInMinutes } from "date-fns";
 import { useExams } from "@/hooks/useExams";
@@ -9,11 +9,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Plus, GraduationCap, Pencil, Trash2, Clock } from "lucide-react";
+import { Plus, GraduationCap, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 function CountdownCard({ exam }: { exam: Exam }) {
-  const [now, setNow] = useState(Date.now());
+  const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     const interval = setInterval(() => setNow(Date.now()), 60000);
     return () => clearInterval(interval);
@@ -68,8 +68,9 @@ export default function Exams() {
     setEditId(null);
   };
 
-  const upcoming = exams.filter((e) => e.date >= Date.now());
-  const past = exams.filter((e) => e.date < Date.now());
+  const currentTime = Date.now();
+  const upcoming = exams.filter((e) => e.date >= currentTime);
+  const past = exams.filter((e) => e.date < currentTime);
 
   const handleSave = async () => {
     if (!form.title.trim() || !form.subjectId) {

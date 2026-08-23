@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { db } from "@/db/database";
-import type { Subject, Note, Assignment, Exam, Goal } from "@/types";
+
 
 interface SearchResult {
   type: "subject" | "note" | "assignment" | "exam" | "goal";

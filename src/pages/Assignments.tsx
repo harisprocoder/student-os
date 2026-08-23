@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { format, differenceInDays, isToday, isTomorrow } from "date-fns";
+import { format, differenceInDays, isToday } from "date-fns";
 import { useAssignments } from "@/hooks/useAssignments";
 import { useSubjects } from "@/hooks/useSubjects";
 import type { Assignment } from "@/types";
@@ -21,7 +21,6 @@ import {
   CheckCircle2,
   Circle,
   Clock,
-  AlertCircle,
   Trash2,
   Pencil,
   ChevronDown,
@@ -77,8 +76,9 @@ export default function Assignments() {
     setEditId(null);
   };
 
+  const now = Date.now();
+
   const filtered = useMemo(() => {
-    const now = Date.now();
     switch (filter) {
       case "today":
         return assignments.filter((a) => isToday(new Date(a.dueDate)) && a.status !== "completed");

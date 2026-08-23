@@ -9,9 +9,8 @@ import type {
   Mark,
   StudySession,
   Goal,
-  Settings,
 } from "@/types";
-import { addDays, subDays, startOfWeek } from "date-fns";
+import { addDays, subDays } from "date-fns";
 
 const DEMO_SUBJECTS: Subject[] = [
   {
@@ -74,8 +73,6 @@ const DEMO_SUBJECTS: Subject[] = [
 function createDemoData(subjects: Subject[]) {
   const now = Date.now();
   const today = new Date();
-  const weekStart = startOfWeek(today, { weekStartsOn: 1 });
-
   const notes: Note[] = [
     {
       id: crypto.randomUUID(),
