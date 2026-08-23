@@ -1,7 +1,7 @@
 {
-  "name": "DAE Student OS",
+  "name": "Student OS",
   "short_name": "Student OS",
-  "description": "Everything a student needs, in one offline workspace.",
+  "description": "Your entire academic life in one offline workspace.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

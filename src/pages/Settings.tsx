@@ -238,9 +238,9 @@ export default function Settings() {
       <div className="rounded-xl border border-border/60 bg-card p-5">
         <h2 className="text-sm font-semibold mb-4">About</h2>
         <div className="space-y-2 text-xs text-muted-foreground">
-          <p>DAE Student OS v1.0</p>
-          <p>Offline-first student productivity application</p>
-          <p>Your data stays on your device. No account required.</p>
+          <p>Student OS v1.0</p>
+          <p>An offline-first workspace for managing classes, assignments, notes, attendance, exams, study plans, goals, and academic progress.</p>
+          <p>All data is stored locally in your browser. No account required.</p>
         </div>
       </div>
     </div>

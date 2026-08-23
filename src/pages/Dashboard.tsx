@@ -134,10 +134,10 @@ export default function Dashboard() {
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
         <h1 className="text-2xl font-bold tracking-tight">
-          {getGreeting()}, {settings?.userName || "Student"} 👋
+          {getGreeting()}, {settings?.userName || "Student"}
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
-          {format(new Date(), "EEEE, MMMM d, yyyy")} — Here's your overview
+          {format(new Date(), "EEEE, MMMM d, yyyy")} — Here is your overview
         </p>
       </motion.div>
 
@@ -166,7 +166,7 @@ export default function Dashboard() {
         />
         <StatCard
           icon={ClipboardList}
-          label="Pending Tasks"
+          label="Assignments"
           value={pendingAssignments.length}
           sub={pendingAssignments.length > 0 ? `${assignments.length} total` : "All caught up!"}
           color="bg-amber-500/10 text-amber-600 dark:text-amber-400"

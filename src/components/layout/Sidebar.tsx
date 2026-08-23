@@ -45,7 +45,7 @@ function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
           <Sparkles className="size-4" />
         </div>
         <div>
-          <h1 className="text-sm font-bold tracking-tight">DAE Student OS</h1>
+          <h1 className="text-sm font-bold tracking-tight">Student OS</h1>
           <p className="text-[10px] text-muted-foreground">Offline Workspace</p>
         </div>
       </div>
@@ -87,7 +87,7 @@ function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
       {/* Footer */}
       <div className="border-t border-border/50 px-4 py-3">
         <p className="text-[10px] text-muted-foreground text-center">
-          Your data stays on your device
+          Everything stays on your device
         </p>
       </div>
     </div>
@@ -143,7 +143,7 @@ export function MobileSidebar() {
                 <div className="flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-600 text-white shadow-sm">
                   <Sparkles className="size-4" />
                 </div>
-                <span className="text-sm font-bold">DAE Student OS</span>
+                <span className="text-sm font-bold">Student OS</span>
               </div>
               <button
                 onClick={() => setMobileSidebarOpen(false)}
@@ -175,7 +175,7 @@ export function MobileHeader() {
         <div className="flex size-7 items-center justify-center rounded-md bg-gradient-to-br from-indigo-500 to-indigo-600 text-white">
           <Sparkles className="size-3.5" />
         </div>
-        <span className="text-sm font-semibold">DAE Student OS</span>
+        <span className="text-sm font-semibold">Student OS</span>
       </div>
     </header>
   );

@@ -105,11 +105,11 @@ export default function Onboarding() {
                     </div>
                   </div>
                   <div>
-                    <h1 className="text-2xl font-bold">DAE Student OS</h1>
-                    <p className="text-muted-foreground mt-1">Everything a student needs, in one offline workspace</p>
+                    <h1 className="text-2xl font-bold">Student OS</h1>
+                    <p className="text-muted-foreground mt-1">Your entire academic life in one workspace</p>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Your data stays on your device. No account required.
+                    No cloud, no account, no data leaving your browser.
                   </p>
                 </div>
               )}
@@ -117,8 +117,8 @@ export default function Onboarding() {
               {step === 1 && (
                 <div className="space-y-4">
                   <div>
-                    <h2 className="text-xl font-bold">About You</h2>
-                    <p className="text-sm text-muted-foreground mt-1">Tell us about yourself</p>
+                    <h2 className="text-xl font-bold tracking-tight">About You</h2>
+                    <p className="text-sm text-muted-foreground mt-1">A few details to personalize your workspace</p>
                   </div>
                   <div className="space-y-3">
                     <div className="space-y-2">
@@ -140,8 +140,8 @@ export default function Onboarding() {
               {step === 2 && (
                 <div className="space-y-4">
                   <div>
-                    <h2 className="text-xl font-bold">Subjects</h2>
-                    <p className="text-sm text-muted-foreground mt-1">Add your current subjects</p>
+                    <h2 className="text-xl font-bold tracking-tight">Subjects</h2>
+                    <p className="text-sm text-muted-foreground mt-1">Add the courses you're taking this term</p>
                   </div>
                   <div className="flex gap-2">
                     <Input value={newSubject.name} onChange={(e) => setNewSubject({ ...newSubject, name: e.target.value })} placeholder="Subject name" onKeyDown={(e) => { if (e.key === "Enter") addSubject(); }} />
@@ -159,15 +159,15 @@ export default function Onboarding() {
                       ))}
                     </div>
                   )}
-                  <p className="text-xs text-muted-foreground">You can skip this and add subjects later</p>
+                  <p className="text-xs text-muted-foreground">You can skip this and add them later from the sidebar</p>
                 </div>
               )}
 
               {step === 3 && (
                 <div className="space-y-4">
                   <div>
-                    <h2 className="text-xl font-bold">Preferences</h2>
-                    <p className="text-sm text-muted-foreground mt-1">Set your attendance target</p>
+                    <h2 className="text-xl font-bold tracking-tight">Preferences</h2>
+                    <p className="text-sm text-muted-foreground mt-1">Choose your minimum attendance target</p>
                   </div>
                   <div className="space-y-2">
                     <Label>Attendance Target: {attendanceTarget}%</Label>
@@ -194,8 +194,8 @@ export default function Onboarding() {
                     </div>
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold">All Set, {name || "Student"}! 🎉</h2>
-                    <p className="text-sm text-muted-foreground mt-1">Your workspace is ready</p>
+                    <h2 className="text-xl font-bold tracking-tight">All Set, {name || "Student"}! 🎉</h2>
+                    <p className="text-sm text-muted-foreground mt-1">Your workspace is configured and ready to use</p>
                   </div>
                 </div>
               )}
