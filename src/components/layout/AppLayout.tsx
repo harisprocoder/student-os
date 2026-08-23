@@ -1,7 +1,7 @@
 import { Outlet } from "react-router";
 import { DesktopSidebar, MobileSidebar, MobileHeader } from "./Sidebar";
-export function AppLayout() {
 
+export function AppLayout() {
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       <DesktopSidebar />

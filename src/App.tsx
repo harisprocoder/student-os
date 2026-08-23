@@ -128,7 +128,7 @@ function SplashScreen({ onComplete }: { onComplete: () => void }) {
       onComplete();
       return;
     }
-    const timer = setTimeout(onComplete, 650);
+    const timer = setTimeout(onComplete, 1200);
     return () => clearTimeout(timer);
   }, [onComplete, reduced]);
 
@@ -136,19 +136,45 @@ function SplashScreen({ onComplete }: { onComplete: () => void }) {
 
   return (
     <motion.div
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-background"
+      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#090A0F]"
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.3, ease: EXIT_EASE }}
+      transition={{ duration: 0.4, ease: EXIT_EASE }}
     >
+      {/* Logo */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }}
+        initial={{ opacity: 0, scale: 0.85, filter: "blur(8px)" }}
         animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-        transition={{ duration: 0.4, ease: SMOOTH }}
+        transition={{ duration: 0.5, ease: SMOOTH }}
+        className="flex flex-col items-center gap-4"
       >
-        <div className="flex size-16 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-600 text-white shadow-lg">
+        <div className="flex size-16 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-xl shadow-indigo-500/20">
           <Sparkles className="size-8" />
         </div>
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.3 }}
+          className="text-center"
+        >
+          <h1 className="text-lg font-bold tracking-tight text-white/90">Student OS</h1>
+          <p className="mt-0.5 text-xs text-white/40">Preparing your workspace…</p>
+        </motion.div>
+      </motion.div>
+
+      {/* Progress bar */}
+      <motion.div
+        initial={{ opacity: 0, scaleX: 0.3 }}
+        animate={{ opacity: 1, scaleX: 1 }}
+        transition={{ delay: 0.4, duration: 0.8, ease: SMOOTH }}
+        className="mt-8 h-0.5 w-32 overflow-hidden rounded-full bg-white/10"
+      >
+        <motion.div
+          initial={{ x: "-100%" }}
+          animate={{ x: "200%" }}
+          transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }}
+          className="h-full w-1/2 bg-gradient-to-r from-transparent via-indigo-400 to-transparent"
+        />
       </motion.div>
     </motion.div>
   );
