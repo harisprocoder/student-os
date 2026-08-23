@@ -4,14 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useSubjects } from "@/hooks/useSubjects";
 import { useAttendance } from "@/hooks/useAttendance";
 import { useAssignments } from "@/hooks/useAssignments";
-import {
-  Plus,
-  BookOpen,
-  Pencil,
-  Trash2,
-  Users,
-  ClipboardList,
-} from "lucide-react";
+import { Plus, BookOpen, Pencil, Trash2, Users, ClipboardList } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -23,6 +16,17 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import {
+  emptyState,
+  emptyChild,
+  emptyIconFloat,
+  cardHover,
+  subjectAccentBar,
+  subjectIcon,
+  btnPrimary,
+  fab,
+  listContainer,
+} from "@/lib/animations";
 
 const SUBJECT_COLORS = [
   "#6366f1",
@@ -37,9 +41,37 @@ const SUBJECT_COLORS = [
   "#06b6d4",
 ];
 
+const gridContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.06, delayChildren: 0.05 },
+  },
+};
+
+const gridItem = {
+  hidden: { opacity: 0, y: 12, scale: 0.97 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] as const },
+  },
+  exit: {
+    opacity: 0,
+    scale: 0.95,
+    transition: { duration: 0.2, ease: [0.55, 0, 1, 0.45] as const },
+  },
+};
 
 export default function Subjects() {
-  const { subjects, loading, addSubject, updateSubject, deleteSubject } = useSubjects();
+  const {
+    subjects,
+    loading,
+    addSubject,
+    updateSubject,
+    deleteSubject,
+  } = useSubjects();
   const { getSubjectAttendance } = useAttendance();
   const { assignments } = useAssignments();
   const [showAdd, setShowAdd] = useState(false);
@@ -54,7 +86,14 @@ export default function Subjects() {
   });
 
   const resetForm = () => {
-    setForm({ name: "", code: "", teacher: "", room: "", color: SUBJECT_COLORS[0], icon: "book-open" });
+    setForm({
+      name: "",
+      code: "",
+      teacher: "",
+      room: "",
+      color: SUBJECT_COLORS[0],
+      icon: "book-open",
+    });
     setEditSubject(null);
   };
 
@@ -117,65 +156,120 @@ export default function Subjects() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Subjects</h1>
-          <p className="text-sm text-muted-foreground">{subjects.length} subjects</p>
-        </div>
-        <Button
-          onClick={() => { resetForm(); setShowAdd(true); }}
-          className="gap-2"
-        >
-          <Plus className="size-4" />
-          Add Subject
-        </Button>
-      </div>
-
-      {subjects.length === 0 ? (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="rounded-xl border border-dashed border-border/60 bg-card/50 p-12 text-center"
-        >
-          <BookOpen className="mx-auto size-12 text-muted-foreground/30" />
-          <h3 className="mt-4 text-lg font-semibold">No subjects yet</h3>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Add your first subject to get started
+          <p className="text-sm text-muted-foreground">
+            {subjects.length} subjects
           </p>
-          <Button onClick={() => { resetForm(); setShowAdd(true); }} className="mt-4 gap-2">
+        </div>
+        <motion.div variants={btnPrimary} initial="rest" whileHover="hover" whileTap="tap">
+          <Button
+            onClick={() => {
+              resetForm();
+              setShowAdd(true);
+            }}
+            className="gap-2"
+          >
             <Plus className="size-4" />
             Add Subject
           </Button>
         </motion.div>
+      </div>
+
+      {subjects.length === 0 ? (
+        <motion.div
+          variants={emptyState}
+          initial="hidden"
+          animate="visible"
+          className="rounded-xl border border-dashed border-border/60 bg-card/50 p-12 text-center"
+        >
+          <motion.div variants={emptyChild}>
+            <motion.div variants={emptyIconFloat} animate="animate">
+              <BookOpen className="mx-auto size-12 text-muted-foreground/30" />
+            </motion.div>
+          </motion.div>
+          <motion.h3
+            variants={emptyChild}
+            className="mt-4 text-lg font-semibold"
+          >
+            No subjects yet
+          </motion.h3>
+          <motion.p
+            variants={emptyChild}
+            className="mt-1 text-sm text-muted-foreground"
+          >
+            Add your first subject to get started
+          </motion.p>
+          <motion.div variants={emptyChild}>
+            <Button
+              onClick={() => {
+                resetForm();
+                setShowAdd(true);
+              }}
+              className="mt-4 gap-2"
+            >
+              <Plus className="size-4" />
+              Add Subject
+            </Button>
+          </motion.div>
+        </motion.div>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <AnimatePresence>
+        <motion.div
+          className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3"
+          variants={gridContainer}
+          initial="hidden"
+          animate="visible"
+        >
+          <AnimatePresence mode="popLayout">
             {subjects.map((subject) => {
               const att = getSubjectAttendance(subject.id);
               const pending = assignments.filter(
-                (a) => a.subjectId === subject.id && a.status !== "completed"
+                (a) =>
+                  a.subjectId === subject.id && a.status !== "completed"
               ).length;
 
               return (
                 <motion.div
                   key={subject.id}
                   layout
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  className="group relative overflow-hidden rounded-xl border border-border/60 bg-card transition-all hover:shadow-md hover:border-border"
+                  variants={gridItem}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  whileHover="hover"
+                  whileTap="tap"
+                  className="group relative overflow-hidden rounded-xl border border-border/60 bg-card"
                 >
-                  <div className="h-1 w-full" style={{ backgroundColor: subject.color }} />
-                  <div className="p-4">
+                  {/* Accent bar */}
+                  <motion.div
+                    className="absolute left-0 top-0 w-1 rounded-r-full"
+                    style={{ backgroundColor: subject.color }}
+                    variants={subjectAccentBar}
+                    initial="rest"
+                    whileHover="hover"
+                  />
+
+                  <div className="p-4 pl-5">
                     <div className="flex items-start justify-between">
-                      <Link to={`/subjects/${subject.id}`} className="flex-1 min-w-0">
+                      <Link
+                        to={`/subjects/${subject.id}`}
+                        className="flex-1 min-w-0"
+                      >
                         <div className="flex items-center gap-2.5">
-                          <div
+                          <motion.div
+                            variants={subjectIcon}
+                            initial="rest"
+                            whileHover="hover"
                             className="flex size-9 items-center justify-center rounded-lg text-white text-sm font-bold"
                             style={{ backgroundColor: subject.color }}
                           >
                             {subject.name[0]}
-                          </div>
+                          </motion.div>
                           <div className="min-w-0">
-                            <p className="font-semibold text-sm truncate">{subject.name}</p>
-                            <p className="text-xs text-muted-foreground">{subject.code}</p>
+                            <p className="font-semibold text-sm truncate">
+                              {subject.name}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {subject.code}
+                            </p>
                           </div>
                         </div>
                       </Link>
@@ -197,7 +291,9 @@ export default function Subjects() {
 
                     <div className="mt-3 space-y-1.5">
                       {subject.teacher && (
-                        <p className="text-xs text-muted-foreground">{subject.teacher}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {subject.teacher}
+                        </p>
                       )}
                     </div>
 
@@ -216,13 +312,23 @@ export default function Subjects() {
               );
             })}
           </AnimatePresence>
-        </div>
+        </motion.div>
       )}
 
-      <Dialog open={showAdd} onOpenChange={(open) => { if (!open) { setShowAdd(false); resetForm(); } }}>
+      <Dialog
+        open={showAdd}
+        onOpenChange={(open) => {
+          if (!open) {
+            setShowAdd(false);
+            resetForm();
+          }
+        }}
+      >
         <DialogContent className="sm:max-w-md rounded-2xl">
           <DialogHeader>
-            <DialogTitle>{editSubject ? "Edit Subject" : "Add Subject"}</DialogTitle>
+            <DialogTitle>
+              {editSubject ? "Edit Subject" : "Add Subject"}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-2">
@@ -246,7 +352,9 @@ export default function Subjects() {
                 <Label>Teacher</Label>
                 <Input
                   value={form.teacher}
-                  onChange={(e) => setForm({ ...form, teacher: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, teacher: e.target.value })
+                  }
                   placeholder="e.g. Dr. Khan"
                 />
               </div>
@@ -267,7 +375,9 @@ export default function Subjects() {
                     key={c}
                     onClick={() => setForm({ ...form, color: c })}
                     className={`size-7 rounded-full transition-all ${
-                      form.color === c ? "ring-2 ring-offset-2 ring-offset-background" : ""
+                      form.color === c
+                        ? "ring-2 ring-offset-2 ring-offset-background"
+                        : ""
                     }`}
                     style={{ backgroundColor: c }}
                   />
@@ -276,7 +386,13 @@ export default function Subjects() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => { setShowAdd(false); resetForm(); }}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowAdd(false);
+                resetForm();
+              }}
+            >
               Cancel
             </Button>
             <Button onClick={handleSave}>
@@ -285,6 +401,27 @@ export default function Subjects() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* FAB for mobile */}
+      <motion.div
+        className="fixed bottom-6 right-6 z-40 sm:hidden"
+        variants={fab}
+        initial="hidden"
+        animate="visible"
+        whileHover="hover"
+        whileTap="tap"
+      >
+        <Button
+          size="icon"
+          className="size-14 rounded-full shadow-lg bg-indigo-500 hover:bg-indigo-600"
+          onClick={() => {
+            resetForm();
+            setShowAdd(true);
+          }}
+        >
+          <Plus className="size-6" />
+        </Button>
+      </motion.div>
     </div>
   );
 }

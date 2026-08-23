@@ -27,12 +27,24 @@ import {
   ChevronUp,
 } from "lucide-react";
 import { toast } from "sonner";
+import {
+  listContainer,
+  listItem,
+  emptyState,
+  emptyChild,
+  emptyIconFloat,
+  btnPrimary,
+  fab,
+  checkbox,
+  cardHover,
+} from "@/lib/animations";
 
 type Filter = "all" | "today" | "upcoming" | "completed";
 
 const PRIORITY_STYLES = {
   high: "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400",
-  medium: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
+  medium:
+    "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
   low: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
 };
 
@@ -49,7 +61,14 @@ const STATUS_STYLES = {
 };
 
 export default function Assignments() {
-  const { assignments, loading, addAssignment, updateAssignment, deleteAssignment, toggleStatus } = useAssignments();
+  const {
+    assignments,
+    loading,
+    addAssignment,
+    updateAssignment,
+    deleteAssignment,
+    toggleStatus,
+  } = useAssignments();
   const { subjects } = useSubjects();
   const [filter, setFilter] = useState<Filter>("all");
   const [showForm, setShowForm] = useState(false);
@@ -81,9 +100,13 @@ export default function Assignments() {
   const filtered = useMemo(() => {
     switch (filter) {
       case "today":
-        return assignments.filter((a) => isToday(new Date(a.dueDate)) && a.status !== "completed");
+        return assignments.filter(
+          (a) => isToday(new Date(a.dueDate)) && a.status !== "completed"
+        );
       case "upcoming":
-        return assignments.filter((a) => a.dueDate >= now && a.status !== "completed");
+        return assignments.filter(
+          (a) => a.dueDate >= now && a.status !== "completed"
+        );
       case "completed":
         return assignments.filter((a) => a.status === "completed");
       default:
@@ -103,7 +126,9 @@ export default function Assignments() {
       dueDate: new Date(form.dueDate).getTime(),
       priority: form.priority,
       status: form.status,
-      checklist: editId ? assignments.find((a) => a.id === editId)?.checklist || [] : [],
+      checklist: editId
+        ? assignments.find((a) => a.id === editId)?.checklist || []
+        : [],
     };
     try {
       if (editId) {
@@ -139,7 +164,12 @@ export default function Assignments() {
   };
 
   const cycleStatus = async (a: Assignment) => {
-    const next = a.status === "todo" ? "in_progress" : a.status === "in_progress" ? "completed" : "todo";
+    const next =
+      a.status === "todo"
+        ? "in_progress"
+        : a.status === "in_progress"
+        ? "completed"
+        : "todo";
     await toggleStatus(a.id, next);
     if (next === "completed") toast.success("Assignment completed! 🎉");
   };
@@ -147,7 +177,10 @@ export default function Assignments() {
   const addChecklistItem = async (a: Assignment) => {
     const text = prompt("Checklist item:");
     if (!text?.trim()) return;
-    const newChecklist = [...a.checklist, { id: crypto.randomUUID(), text: text.trim(), completed: false }];
+    const newChecklist = [
+      ...a.checklist,
+      { id: crypto.randomUUID(), text: text.trim(), completed: false },
+    ];
     await updateAssignment(a.id, { checklist: newChecklist });
   };
 
@@ -177,13 +210,23 @@ export default function Assignments() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Assignments</h1>
           <p className="text-sm text-muted-foreground">
-            {assignments.filter((a) => a.status !== "completed").length} pending · {assignments.filter((a) => a.status === "completed").length} completed
+            {assignments.filter((a) => a.status !== "completed").length} pending
+            · {assignments.filter((a) => a.status === "completed").length}{" "}
+            completed
           </p>
         </div>
-        <Button onClick={() => { resetForm(); setShowForm(true); }} className="gap-2">
-          <Plus className="size-4" />
-          New Assignment
-        </Button>
+        <motion.div variants={btnPrimary} initial="rest" whileHover="hover" whileTap="tap">
+          <Button
+            onClick={() => {
+              resetForm();
+              setShowForm(true);
+            }}
+            className="gap-2"
+          >
+            <Plus className="size-4" />
+            New Assignment
+          </Button>
+        </motion.div>
       </div>
 
       {/* Filters */}
@@ -206,66 +249,108 @@ export default function Assignments() {
       {/* Assignment List */}
       {filtered.length === 0 ? (
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
+          variants={emptyState}
+          initial="hidden"
+          animate="visible"
           className="rounded-xl border border-dashed border-border/60 bg-card/50 p-12 text-center"
         >
-          <ClipboardList className="mx-auto size-12 text-muted-foreground/30" />
-          <h3 className="mt-4 text-lg font-semibold">
-            {filter === "completed" ? "No completed assignments" : "No assignments here"}
-          </h3>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <motion.div variants={emptyChild}>
+            <motion.div variants={emptyIconFloat} animate="animate">
+              <ClipboardList className="mx-auto size-12 text-muted-foreground/30" />
+            </motion.div>
+          </motion.div>
+          <motion.h3
+            variants={emptyChild}
+            className="mt-4 text-lg font-semibold"
+          >
+            {filter === "completed"
+              ? "No completed assignments"
+              : "No assignments here"}
+          </motion.h3>
+          <motion.p
+            variants={emptyChild}
+            className="mt-1 text-sm text-muted-foreground"
+          >
             {filter === "today"
               ? "Nothing due today. Enjoy your day!"
               : filter === "completed"
               ? "Complete an assignment to see it here"
               : "Create your first assignment to start tracking"}
-          </p>
+          </motion.p>
           {filter !== "completed" && (
-            <Button onClick={() => { resetForm(); setShowForm(true); }} className="mt-4 gap-2">
-              <Plus className="size-4" /> New Assignment
-            </Button>
+            <motion.div variants={emptyChild}>
+              <Button
+                onClick={() => {
+                  resetForm();
+                  setShowForm(true);
+                }}
+                className="mt-4 gap-2"
+              >
+                <Plus className="size-4" /> New Assignment
+              </Button>
+            </motion.div>
           )}
         </motion.div>
       ) : (
-        <div className="space-y-2">
-          <AnimatePresence>
+        <motion.div
+          className="space-y-2"
+          variants={listContainer}
+          initial="hidden"
+          animate="visible"
+        >
+          <AnimatePresence mode="popLayout">
             {filtered.map((a) => {
               const StatusIcon = STATUS_ICONS[a.status];
               const subject = subjects.find((s) => s.id === a.subjectId);
-              const daysLeft = differenceInDays(new Date(a.dueDate), new Date());
+              const daysLeft = differenceInDays(
+                new Date(a.dueDate),
+                new Date()
+              );
               const isExpanded = expandedId === a.id;
-              const completedChecklist = a.checklist.filter((c) => c.completed).length;
+              const completedChecklist = a.checklist.filter(
+                (c) => c.completed
+              ).length;
 
               return (
                 <motion.div
                   key={a.id}
                   layout
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
+                  variants={listItem}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  whileHover="hover"
                   className={`rounded-xl border bg-card transition-all ${
-                    a.status === "completed" ? "opacity-60" : "border-border/60 hover:shadow-sm"
+                    a.status === "completed"
+                      ? "opacity-60"
+                      : "border-border/60"
                   }`}
                 >
                   <div className="flex items-center gap-3 p-4">
-                    <button
+                    <motion.button
                       onClick={() => cycleStatus(a)}
+                      variants={checkbox}
+                      animate={a.status === "completed" ? "checked" : "unchecked"}
+                      whileTap={{ scale: 1.2 }}
                       className={`shrink-0 transition-colors ${STATUS_STYLES[a.status]}`}
                     >
                       <StatusIcon className="size-5" />
-                    </button>
+                    </motion.button>
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <p
                           className={`text-sm font-medium ${
-                            a.status === "completed" ? "line-through text-muted-foreground" : ""
+                            a.status === "completed"
+                              ? "line-through text-muted-foreground"
+                              : ""
                           }`}
                         >
                           {a.title}
                         </p>
-                        <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${PRIORITY_STYLES[a.priority]}`}>
+                        <span
+                          className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${PRIORITY_STYLES[a.priority]}`}
+                        >
                           {a.priority}
                         </span>
                       </div>
@@ -273,7 +358,10 @@ export default function Assignments() {
                         {subject && (
                           <span
                             className="inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded-full"
-                            style={{ backgroundColor: subject.color + "20", color: subject.color }}
+                            style={{
+                              backgroundColor: subject.color + "20",
+                              color: subject.color,
+                            }}
                           >
                             {subject.name}
                           </span>
@@ -284,10 +372,16 @@ export default function Assignments() {
                         {daysLeft >= 0 && a.status !== "completed" && (
                           <span
                             className={`text-[11px] font-medium ${
-                              daysLeft <= 2 ? "text-rose-600 dark:text-rose-400" : "text-muted-foreground"
+                              daysLeft <= 2
+                                ? "text-rose-600 dark:text-rose-400"
+                                : "text-muted-foreground"
                             }`}
                           >
-                            {daysLeft === 0 ? "Today" : daysLeft === 1 ? "Tomorrow" : `${daysLeft}d left`}
+                            {daysLeft === 0
+                              ? "Today"
+                              : daysLeft === 1
+                              ? "Tomorrow"
+                              : `${daysLeft}d left`}
                           </span>
                         )}
                         {a.checklist.length > 0 && (
@@ -301,10 +395,16 @@ export default function Assignments() {
                     <div className="flex items-center gap-1 shrink-0">
                       {a.checklist.length > 0 && (
                         <button
-                          onClick={() => setExpandedId(isExpanded ? null : a.id)}
+                          onClick={() =>
+                            setExpandedId(isExpanded ? null : a.id)
+                          }
                           className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted transition-colors"
                         >
-                          {isExpanded ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
+                          {isExpanded ? (
+                            <ChevronUp className="size-4" />
+                          ) : (
+                            <ChevronDown className="size-4" />
+                          )}
                         </button>
                       )}
                       <button
@@ -335,7 +435,9 @@ export default function Assignments() {
                           {a.checklist.map((item) => (
                             <button
                               key={item.id}
-                              onClick={() => toggleChecklistItem(a, item.id)}
+                              onClick={() =>
+                                toggleChecklistItem(a, item.id)
+                              }
                               className="flex items-center gap-2 w-full text-left rounded-lg px-2 py-1.5 hover:bg-muted/50 transition-colors"
                             >
                               <div
@@ -346,12 +448,28 @@ export default function Assignments() {
                                 }`}
                               >
                                 {item.completed && (
-                                  <svg className="size-2.5 text-white" viewBox="0 0 12 12" fill="none">
-                                    <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                  <svg
+                                    className="size-2.5 text-white"
+                                    viewBox="0 0 12 12"
+                                    fill="none"
+                                  >
+                                    <path
+                                      d="M2 6l3 3 5-5"
+                                      stroke="currentColor"
+                                      strokeWidth="2"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    />
                                   </svg>
                                 )}
                               </div>
-                              <span className={`text-xs ${item.completed ? "line-through text-muted-foreground" : ""}`}>
+                              <span
+                                className={`text-xs ${
+                                  item.completed
+                                    ? "line-through text-muted-foreground"
+                                    : ""
+                                }`}
+                              >
                                 {item.text}
                               </span>
                             </button>
@@ -370,21 +488,33 @@ export default function Assignments() {
               );
             })}
           </AnimatePresence>
-        </div>
+        </motion.div>
       )}
 
       {/* Add/Edit Dialog */}
-      <Dialog open={showForm} onOpenChange={(open) => { if (!open) { setShowForm(false); resetForm(); } }}>
+      <Dialog
+        open={showForm}
+        onOpenChange={(open) => {
+          if (!open) {
+            setShowForm(false);
+            resetForm();
+          }
+        }}
+      >
         <DialogContent className="sm:max-w-lg rounded-2xl">
           <DialogHeader>
-            <DialogTitle>{editId ? "Edit Assignment" : "New Assignment"}</DialogTitle>
+            <DialogTitle>
+              {editId ? "Edit Assignment" : "New Assignment"}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-2">
               <Label>Title *</Label>
               <Input
                 value={form.title}
-                onChange={(e) => setForm({ ...form, title: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, title: e.target.value })
+                }
                 placeholder="Assignment title"
               />
             </div>
@@ -392,7 +522,9 @@ export default function Assignments() {
               <Label>Description</Label>
               <Textarea
                 value={form.description}
-                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, description: e.target.value })
+                }
                 placeholder="Details about the assignment..."
                 rows={3}
               />
@@ -402,12 +534,16 @@ export default function Assignments() {
                 <Label>Subject</Label>
                 <select
                   value={form.subjectId}
-                  onChange={(e) => setForm({ ...form, subjectId: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, subjectId: e.target.value })
+                  }
                   className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
                 >
                   <option value="">No subject</option>
                   {subjects.map((s) => (
-                    <option key={s.id} value={s.id}>{s.name}</option>
+                    <option key={s.id} value={s.id}>
+                      {s.name}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -416,7 +552,9 @@ export default function Assignments() {
                 <Input
                   type="date"
                   value={form.dueDate}
-                  onChange={(e) => setForm({ ...form, dueDate: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, dueDate: e.target.value })
+                  }
                 />
               </div>
             </div>
@@ -425,7 +563,12 @@ export default function Assignments() {
                 <Label>Priority</Label>
                 <select
                   value={form.priority}
-                  onChange={(e) => setForm({ ...form, priority: e.target.value as "low" | "medium" | "high" })}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      priority: e.target.value as "low" | "medium" | "high",
+                    })
+                  }
                   className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
                 >
                   <option value="low">Low</option>
@@ -437,7 +580,15 @@ export default function Assignments() {
                 <Label>Status</Label>
                 <select
                   value={form.status}
-                  onChange={(e) => setForm({ ...form, status: e.target.value as "todo" | "in_progress" | "completed" })}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      status: e.target.value as
+                        | "todo"
+                        | "in_progress"
+                        | "completed",
+                    })
+                  }
                   className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
                 >
                   <option value="todo">To Do</option>
@@ -448,7 +599,13 @@ export default function Assignments() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => { setShowForm(false); resetForm(); }}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowForm(false);
+                resetForm();
+              }}
+            >
               Cancel
             </Button>
             <Button onClick={handleSave}>
@@ -457,6 +614,27 @@ export default function Assignments() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* FAB for mobile */}
+      <motion.div
+        className="fixed bottom-6 right-6 z-40 sm:hidden"
+        variants={fab}
+        initial="hidden"
+        animate="visible"
+        whileHover="hover"
+        whileTap="tap"
+      >
+        <Button
+          size="icon"
+          className="size-14 rounded-full shadow-lg bg-indigo-500 hover:bg-indigo-600"
+          onClick={() => {
+            resetForm();
+            setShowForm(true);
+          }}
+        >
+          <Plus className="size-6" />
+        </Button>
+      </motion.div>
     </div>
   );
 }

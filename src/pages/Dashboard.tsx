@@ -5,6 +5,10 @@ import { format, differenceInDays } from "date-fns";
 import { liveQuery } from "dexie";
 import { db } from "@/db/database";
 import type { Subject, Assignment, AttendanceRecord, Exam, StudySession, Settings } from "@/types";
+import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { dashboardContainer, summaryCard, widget, btnPrimary } from "@/lib/animations";
+import { SMOOTH } from "@/constants/motion";
 import {
   BookOpen,
   ClipboardList,
@@ -15,16 +19,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 
-const stagger = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.06 } },
-};
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 12 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" as const } },
-};
-
+/* ─── Stat Card ──────────────────────────────────────────────────────────────── */
 function StatCard({
   icon: Icon,
   label,
@@ -32,6 +27,7 @@ function StatCard({
   sub,
   color,
   href,
+  animateCount,
 }: {
   icon: React.ElementType;
   label: string;
@@ -39,12 +35,16 @@ function StatCard({
   sub?: string;
   color: string;
   href: string;
+  animateCount?: boolean;
 }) {
   return (
     <Link to={href} className="group">
       <motion.div
-        variants={fadeUp}
-        className="relative overflow-hidden rounded-xl border border-border/60 bg-card p-4 transition-all duration-200 hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-800"
+        variants={summaryCard}
+        whileHover={{ y: -2, boxShadow: "0 8px 25px rgba(0,0,0,0.08)" }}
+        whileTap={{ scale: 0.995 }}
+        transition={{ duration: 0.2, ease: SMOOTH }}
+        className="relative overflow-hidden rounded-xl border border-border/60 bg-card p-4 transition-colors hover:border-indigo-200 dark:hover:border-indigo-800"
       >
         <div className="flex items-start justify-between">
           <div className={`flex size-9 items-center justify-center rounded-lg ${color}`}>
@@ -53,15 +53,22 @@ function StatCard({
           <ArrowRight className="size-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
         </div>
         <div className="mt-3">
-          <p className="text-2xl font-bold tracking-tight">{value}</p>
-          <p className="text-xs text-muted-foreground mt-0.5">{label}</p>
-          {sub && <p className="text-[11px] text-muted-foreground/70 mt-1">{sub}</p>}
+          <p className="text-2xl font-bold tracking-tight">
+            {animateCount && typeof value === "number" ? (
+              <AnimatedNumber value={value} />
+            ) : (
+              value
+            )}
+          </p>
+          <p className="mt-0.5 text-xs text-muted-foreground">{label}</p>
+          {sub && <p className="mt-1 text-[11px] text-muted-foreground/70">{sub}</p>}
         </div>
       </motion.div>
     </Link>
   );
 }
 
+/* ─── Dashboard ──────────────────────────────────────────────────────────────── */
 export default function Dashboard() {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
@@ -69,6 +76,7 @@ export default function Dashboard() {
   const [exams, setExams] = useState<Exam[]>([]);
   const [sessions, setSessions] = useState<StudySession[]>([]);
   const [settings, setSettings] = useState<Settings | null>(null);
+  const reduced = useReducedMotion();
 
   useEffect(() => {
     const subs = [
@@ -84,15 +92,12 @@ export default function Dashboard() {
 
   const pendingAssignments = useMemo(
     () => assignments.filter((a) => a.status !== "completed"),
-    [assignments]
+    [assignments],
   );
 
   const now = Date.now();
 
-  const upcomingExams = useMemo(
-    () => exams.filter((e) => e.date >= now).slice(0, 3),
-    [exams, now]
-  );
+  const upcomingExams = useMemo(() => exams.filter((e) => e.date >= now).slice(0, 3), [exams, now]);
 
   const attendancePct = useMemo(() => {
     if (attendance.length === 0) return 0;
@@ -104,22 +109,18 @@ export default function Dashboard() {
   const todayStudyMin = useMemo(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    return sessions
-      .filter((s) => s.date >= today.getTime() && s.completed)
-      .reduce((sum, s) => sum + s.duration, 0);
+    return sessions.filter((s) => s.date >= today.getTime() && s.completed).reduce((sum, s) => sum + s.duration, 0);
   }, [sessions]);
 
   const weeklyStudyMin = useMemo(() => {
     const weekAgo = now - 7 * 24 * 60 * 60 * 1000;
-    return sessions
-      .filter((s) => s.date >= weekAgo && s.completed)
-      .reduce((sum, s) => sum + s.duration, 0);
-  }, [sessions]);
+    return sessions.filter((s) => s.date >= weekAgo && s.completed).reduce((sum, s) => sum + s.duration, 0);
+  }, [sessions, now]);
 
   const nextExam = useMemo(() => {
     const upcoming = exams.filter((e) => e.date >= now);
     return upcoming.length > 0 ? upcoming[0] : null;
-  }, [exams]);
+  }, [exams, now]);
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -131,18 +132,22 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+      <motion.div
+        initial={reduced ? { opacity: 1 } : { opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: SMOOTH }}
+      >
         <h1 className="text-2xl font-bold tracking-tight">
           {getGreeting()}, {settings?.userName || "Student"}
         </h1>
-        <p className="text-sm text-muted-foreground mt-1">
+        <p className="mt-1 text-sm text-muted-foreground">
           {format(new Date(), "EEEE, MMMM d, yyyy")} — Here is your overview
         </p>
       </motion.div>
 
-      {/* Stat Cards */}
+      {/* Stat Cards — staggered entrance */}
       <motion.div
-        variants={stagger}
+        variants={dashboardContainer}
         initial="hidden"
         animate="visible"
         className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6"
@@ -151,9 +156,10 @@ export default function Dashboard() {
           icon={BookOpen}
           label="Subjects"
           value={subjects.length}
-          sub={`${subjects.length > 0 ? "Active" : "Add your first subject"}`}
+          sub={subjects.length > 0 ? "Active" : "Add your first subject"}
           color="bg-indigo-500/10 text-indigo-600 dark:text-indigo-400"
           href="/subjects"
+          animateCount
         />
         <StatCard
           icon={Users}
@@ -170,15 +176,12 @@ export default function Dashboard() {
           sub={pendingAssignments.length > 0 ? `${assignments.length} total` : "All caught up!"}
           color="bg-amber-500/10 text-amber-600 dark:text-amber-400"
           href="/assignments"
+          animateCount
         />
         <StatCard
           icon={GraduationCap}
           label="Next Exam"
-          value={
-            nextExam
-              ? `${differenceInDays(new Date(nextExam.date), new Date())}d`
-              : "—"
-          }
+          value={nextExam ? `${differenceInDays(new Date(nextExam.date), new Date())}d` : "—"}
           sub={nextExam ? format(new Date(nextExam.date), "MMM d") : "No exams"}
           color="bg-rose-500/10 text-rose-600 dark:text-rose-400"
           href="/exams"
@@ -190,24 +193,27 @@ export default function Dashboard() {
           sub={`Weekly: ${weeklyStudyMin}m`}
           color="bg-violet-500/10 text-violet-600 dark:text-violet-400"
           href="/study-timer"
+          animateCount
         />
         <StatCard
           icon={Target}
           label="Goals"
-          value={
-            settings
-              ? "Active"
-              : "—"
-          }
-          sub="Track progress"
+          value="Track"
+          sub="View progress"
           color="bg-cyan-500/10 text-cyan-600 dark:text-cyan-400"
           href="/goals"
         />
       </motion.div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      {/* Widgets — staggered entrance after summary cards */}
+      <motion.div
+        variants={dashboardContainer}
+        initial="hidden"
+        animate="visible"
+        className="grid gap-4 lg:grid-cols-2"
+      >
         {/* Upcoming Assignments */}
-        <motion.div variants={fadeUp} initial="hidden" animate="visible" className="rounded-xl border border-border/60 bg-card">
+        <motion.div variants={widget} className="rounded-xl border border-border/60 bg-card">
           <div className="flex items-center justify-between border-b border-border/50 px-4 py-3">
             <h2 className="text-sm font-semibold">Upcoming Assignments</h2>
             <Link to="/assignments" className="text-xs text-indigo-600 hover:underline dark:text-indigo-400">
@@ -227,22 +233,22 @@ export default function Dashboard() {
                 return (
                   <div key={a.id} className="flex items-center gap-3 px-4 py-3">
                     <div
-                      className="size-2 rounded-full shrink-0"
+                      className="size-2 shrink-0 rounded-full"
                       style={{ backgroundColor: subject?.color || "#6366f1" }}
                     />
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium truncate">{a.title}</p>
+                      <p className="truncate text-sm font-medium">{a.title}</p>
                       <p className="text-xs text-muted-foreground">
                         {subject?.name || "No subject"} · {format(new Date(a.dueDate), "MMM d")}
                       </p>
                     </div>
                     <span
-                      className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                         daysLeft < 0
                           ? "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400"
                           : daysLeft <= 2
-                          ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
-                          : "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                            ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                            : "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
                       }`}
                     >
                       {daysLeft < 0 ? "Overdue" : daysLeft === 0 ? "Today" : `${daysLeft}d`}
@@ -255,7 +261,7 @@ export default function Dashboard() {
         </motion.div>
 
         {/* Upcoming Exams */}
-        <motion.div variants={fadeUp} initial="hidden" animate="visible" className="rounded-xl border border-border/60 bg-card">
+        <motion.div variants={widget} className="rounded-xl border border-border/60 bg-card">
           <div className="flex items-center justify-between border-b border-border/50 px-4 py-3">
             <h2 className="text-sm font-semibold">Upcoming Exams</h2>
             <Link to="/exams" className="text-xs text-indigo-600 hover:underline dark:text-indigo-400">
@@ -278,7 +284,7 @@ export default function Dashboard() {
                       <GraduationCap className="size-4" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium truncate">{e.title}</p>
+                      <p className="truncate text-sm font-medium">{e.title}</p>
                       <p className="text-xs text-muted-foreground">
                         {subject?.name} · {format(new Date(e.date), "MMM d, yyyy")} · {e.time}
                       </p>
@@ -293,11 +299,16 @@ export default function Dashboard() {
             )}
           </div>
         </motion.div>
-      </div>
+      </motion.div>
 
       {/* Quick Actions */}
-      <motion.div variants={fadeUp} initial="hidden" animate="visible" className="rounded-xl border border-border/60 bg-card p-4">
-        <h2 className="text-sm font-semibold mb-3">Quick Actions</h2>
+      <motion.div
+        variants={widget}
+        initial="hidden"
+        animate="visible"
+        className="rounded-xl border border-border/60 bg-card p-4"
+      >
+        <h2 className="mb-3 text-sm font-semibold">Quick Actions</h2>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           {[
             { label: "New Note", href: "/notes/new", icon: "📝" },
@@ -305,14 +316,15 @@ export default function Dashboard() {
             { label: "Record Attendance", href: "/attendance", icon: "✅" },
             { label: "Start Studying", href: "/study-timer", icon: "⏱️" },
           ].map((action) => (
-            <Link
-              key={action.href}
-              to={action.href}
-              className="flex items-center gap-2 rounded-lg border border-border/50 bg-background/50 px-3 py-2.5 text-sm font-medium transition-all hover:bg-muted hover:shadow-sm"
-            >
-              <span>{action.icon}</span>
-              <span>{action.label}</span>
-            </Link>
+            <motion.div key={action.href} whileHover={btnPrimary.hover} whileTap={btnPrimary.tap}>
+              <Link
+                to={action.href}
+                className="flex items-center gap-2 rounded-lg border border-border/50 bg-background/50 px-3 py-2.5 text-sm font-medium transition-colors hover:bg-muted"
+              >
+                <span>{action.icon}</span>
+                <span>{action.label}</span>
+              </Link>
+            </motion.div>
           ))}
         </div>
       </motion.div>
