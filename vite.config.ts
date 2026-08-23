@@ -1,3 +1,4 @@
+import { vlyPlugin } from "@vly-ai/integrations";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
@@ -5,7 +6,7 @@ import path from "path";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  plugins: [
+  plugins: [vlyPlugin(), 
     react(),
     tailwindcss(),
     VitePWA({
