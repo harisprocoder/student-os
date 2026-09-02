@@ -30,32 +30,32 @@ const navSections = [
     label: "Overview",
     items: [
       { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-      { path: "/subjects", label: "Subjects", icon: BookOpen },
-      { path: "/timetable", label: "Timetable", icon: Calendar },
+      { path: "/dashboard/subjects", label: "Subjects", icon: BookOpen },
+      { path: "/dashboard/timetable", label: "Timetable", icon: Calendar },
     ],
   },
   {
     label: "Study",
     items: [
-      { path: "/assignments", label: "Assignments", icon: ClipboardList },
-      { path: "/study-planner", label: "Study Planner", icon: Calendar },
-      { path: "/study-timer", label: "Study Timer", icon: Timer },
+      { path: "/dashboard/assignments", label: "Assignments", icon: ClipboardList },
+      { path: "/dashboard/study-planner", label: "Study Planner", icon: Calendar },
+      { path: "/dashboard/study-timer", label: "Study Timer", icon: Timer },
     ],
   },
   {
     label: "Progress",
     items: [
-      { path: "/attendance", label: "Attendance", icon: Users },
-      { path: "/exams", label: "Exams", icon: GraduationCap },
-      { path: "/marks", label: "Marks & GPA", icon: BarChart3 },
-      { path: "/goals", label: "Goals", icon: Target },
+      { path: "/dashboard/attendance", label: "Attendance", icon: Users },
+      { path: "/dashboard/exams", label: "Exams", icon: GraduationCap },
+      { path: "/dashboard/marks", label: "Marks & GPA", icon: BarChart3 },
+      { path: "/dashboard/goals", label: "Goals", icon: Target },
     ],
   },
   {
     label: "Personal",
     items: [
-      { path: "/notes", label: "Notes", icon: FileText },
-      { path: "/settings", label: "Settings", icon: Settings },
+      { path: "/dashboard/notes", label: "Notes", icon: FileText },
+      { path: "/dashboard/settings", label: "Settings", icon: Settings },
     ],
   },
 ];

@@ -185,3 +185,95 @@
 .sidebar-scroll::-webkit-scrollbar-thumb:hover {
   background: oklch(1 0 0 / 15%);
 }
+
+/* ─── Landing Page Design System ─────────────────────────────────────────────── */
+@theme inline {
+  --font-display: "Crimson Pro", Georgia, "Times New Roman", serif;
+  --font-heading: "Manrope", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  /* Landing brand tokens */
+  --lp-ink: #1c1915;
+  --lp-ink-muted: #5a5550;
+  --lp-paper: #f5f2ed;
+  --lp-paper-warm: #ede8e0;
+  --lp-paper-deep: #e4ddd3;
+  --lp-accent: #c75b32;
+  --lp-accent-soft: #d4845f;
+  --lp-night: #1b1916;
+  --lp-night-surface: #252220;
+  --lp-night-elevated: #2f2c28;
+  --lp-night-border: rgba(255,255,255,0.06);
+  --lp-cream: #faf8f5;
+  --lp-success: #2d8a56;
+  --lp-indigo: #6366f1;
+  --lp-violet: #8b5cf6;
+}
+
+.dark {
+  --lp-ink: #f0ece6;
+  --lp-ink-muted: #9a9590;
+  --lp-paper: #1b1916;
+  --lp-paper-warm: #252220;
+  --lp-paper-deep: #2f2c28;
+  --lp-cream: #131210;
+}
+
+/* Landing-specific utility classes */
+.lp-section-label {
+  font-family: var(--font-heading);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--lp-accent);
+}
+
+.lp-display {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.lp-heading {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+}
+
+.lp-body {
+  font-family: var(--font-body);
+  font-weight: 400;
+  line-height: 1.65;
+}
+
+.lp-mono-number {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Smooth scroll for landing anchors */
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Dot grid pattern for landing backgrounds */
+.lp-dot-grid {
+  background-image: radial-gradient(circle, oklch(0.5 0 0 / 0.07) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.dark .lp-dot-grid {
+  background-image: radial-gradient(circle, oklch(1 0 0 / 0.04) 1px, transparent 1px);
+}

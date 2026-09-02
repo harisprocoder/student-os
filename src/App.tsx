@@ -6,10 +6,14 @@ import { useUIStore, useSettingsStore } from "@/stores";
 import { getSettings } from "@/db/database";
 import { Toaster } from "sonner";
 import { Sparkles } from "lucide-react";
-import { SMOOTH, EXIT_EASE, SPRING_GENTLE } from "@/constants/motion";
+import { SMOOTH, EXIT_EASE } from "@/constants/motion";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
-// Lazy routes
+// Lazy routes — Landing
+const Landing = lazy(() => import("@/pages/Landing"));
+const Onboarding = lazy(() => import("@/pages/Onboarding"));
+
+// Lazy routes — Dashboard app (under /dashboard)
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
 const Subjects = lazy(() => import("@/pages/Subjects"));
 const SubjectDetail = lazy(() => import("@/pages/SubjectDetail"));
@@ -24,8 +28,6 @@ const StudyPlanner = lazy(() => import("@/pages/StudyPlanner"));
 const StudyTimer = lazy(() => import("@/pages/StudyTimer"));
 const Goals = lazy(() => import("@/pages/Goals"));
 const Settings = lazy(() => import("@/pages/Settings"));
-const Onboarding = lazy(() => import("@/pages/Onboarding"));
-const Landing = lazy(() => import("@/pages/Landing"));
 
 /* ─── Route Loading Skeleton ──────────────────────────────────────────────────── */
 function RouteLoading() {
@@ -141,7 +143,6 @@ function SplashScreen({ onComplete }: { onComplete: () => void }) {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.4, ease: EXIT_EASE }}
     >
-      {/* Logo */}
       <motion.div
         initial={{ opacity: 0, scale: 0.85, filter: "blur(8px)" }}
         animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
@@ -162,7 +163,6 @@ function SplashScreen({ onComplete }: { onComplete: () => void }) {
         </motion.div>
       </motion.div>
 
-      {/* Progress bar */}
       <motion.div
         initial={{ opacity: 0, scaleX: 0.3 }}
         animate={{ opacity: 1, scaleX: 1 }}
@@ -188,25 +188,30 @@ function AppRoutes() {
     <Suspense fallback={<RouteLoading />}>
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
+          {/* Public routes */}
           <Route path="/" element={<Landing />} />
           <Route path="/onboarding" element={<Onboarding />} />
-          <Route element={<AppLayout />}>
-            <Route path="/dashboard" element={<PageTransitionWrapper><Dashboard /></PageTransitionWrapper>} />
-            <Route path="/subjects" element={<PageTransitionWrapper><Subjects /></PageTransitionWrapper>} />
-            <Route path="/subjects/:id" element={<PageTransitionWrapper><SubjectDetail /></PageTransitionWrapper>} />
-            <Route path="/notes" element={<PageTransitionWrapper><Notes /></PageTransitionWrapper>} />
-            <Route path="/notes/new" element={<PageTransitionWrapper><NoteEditor /></PageTransitionWrapper>} />
-            <Route path="/notes/:id" element={<PageTransitionWrapper><NoteEditor /></PageTransitionWrapper>} />
-            <Route path="/assignments" element={<PageTransitionWrapper><Assignments /></PageTransitionWrapper>} />
-            <Route path="/timetable" element={<PageTransitionWrapper><Timetable /></PageTransitionWrapper>} />
-            <Route path="/attendance" element={<PageTransitionWrapper><Attendance /></PageTransitionWrapper>} />
-            <Route path="/exams" element={<PageTransitionWrapper><Exams /></PageTransitionWrapper>} />
-            <Route path="/marks" element={<PageTransitionWrapper><Marks /></PageTransitionWrapper>} />
-            <Route path="/study-planner" element={<PageTransitionWrapper><StudyPlanner /></PageTransitionWrapper>} />
-            <Route path="/study-timer" element={<PageTransitionWrapper><StudyTimer /></PageTransitionWrapper>} />
-            <Route path="/goals" element={<PageTransitionWrapper><Goals /></PageTransitionWrapper>} />
-            <Route path="/settings" element={<PageTransitionWrapper><Settings /></PageTransitionWrapper>} />
+
+          {/* Dashboard app routes — all under /dashboard */}
+          <Route path="/dashboard" element={<AppLayout />}>
+            <Route index element={<PageTransitionWrapper><Dashboard /></PageTransitionWrapper>} />
+            <Route path="subjects" element={<PageTransitionWrapper><Subjects /></PageTransitionWrapper>} />
+            <Route path="subjects/:id" element={<PageTransitionWrapper><SubjectDetail /></PageTransitionWrapper>} />
+            <Route path="notes" element={<PageTransitionWrapper><Notes /></PageTransitionWrapper>} />
+            <Route path="notes/new" element={<PageTransitionWrapper><NoteEditor /></PageTransitionWrapper>} />
+            <Route path="notes/:id" element={<PageTransitionWrapper><NoteEditor /></PageTransitionWrapper>} />
+            <Route path="assignments" element={<PageTransitionWrapper><Assignments /></PageTransitionWrapper>} />
+            <Route path="timetable" element={<PageTransitionWrapper><Timetable /></PageTransitionWrapper>} />
+            <Route path="attendance" element={<PageTransitionWrapper><Attendance /></PageTransitionWrapper>} />
+            <Route path="exams" element={<PageTransitionWrapper><Exams /></PageTransitionWrapper>} />
+            <Route path="marks" element={<PageTransitionWrapper><Marks /></PageTransitionWrapper>} />
+            <Route path="study-planner" element={<PageTransitionWrapper><StudyPlanner /></PageTransitionWrapper>} />
+            <Route path="study-timer" element={<PageTransitionWrapper><StudyTimer /></PageTransitionWrapper>} />
+            <Route path="goals" element={<PageTransitionWrapper><Goals /></PageTransitionWrapper>} />
+            <Route path="settings" element={<PageTransitionWrapper><Settings /></PageTransitionWrapper>} />
           </Route>
+
+          {/* 404 */}
           <Route
             path="*"
             element={

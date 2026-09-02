@@ -36,31 +36,31 @@ export function useSearch() {
       subjects
         .filter((s) => s.name.toLowerCase().includes(q) || s.code.toLowerCase().includes(q))
         .forEach((s) =>
-          found.push({ type: "subject", id: s.id, title: s.name, subtitle: s.code, path: `/subjects/${s.id}` })
+          found.push({ type: "subject", id: s.id, title: s.name, subtitle: s.code, path: `/dashboard/subjects/${s.id}` })
         );
 
       notes
         .filter((n) => n.title.toLowerCase().includes(q) || n.content.toLowerCase().includes(q))
         .forEach((n) =>
-          found.push({ type: "note", id: n.id, title: n.title, subtitle: n.folder || "Notes", path: `/notes?edit=${n.id}` })
+          found.push({ type: "note", id: n.id, title: n.title, subtitle: n.folder || "Notes", path: `/dashboard/notes?edit=${n.id}` })
         );
 
       assignments
         .filter((a) => a.title.toLowerCase().includes(q) || a.description.toLowerCase().includes(q))
         .forEach((a) =>
-          found.push({ type: "assignment", id: a.id, title: a.title, subtitle: a.status, path: `/assignments` })
+          found.push({ type: "assignment", id: a.id, title: a.title, subtitle: a.status, path: `/dashboard/assignments` })
         );
 
       exams
         .filter((e) => e.title.toLowerCase().includes(q) || e.syllabus.toLowerCase().includes(q))
         .forEach((e) =>
-          found.push({ type: "exam", id: e.id, title: e.title, subtitle: e.syllabus.slice(0, 50), path: `/exams` })
+          found.push({ type: "exam", id: e.id, title: e.title, subtitle: e.syllabus.slice(0, 50), path: `/dashboard/exams` })
         );
 
       goals
         .filter((g) => g.title.toLowerCase().includes(q) || g.description.toLowerCase().includes(q))
         .forEach((g) =>
-          found.push({ type: "goal", id: g.id, title: g.title, subtitle: g.description.slice(0, 50), path: `/goals` })
+          found.push({ type: "goal", id: g.id, title: g.title, subtitle: g.description.slice(0, 50), path: `/dashboard/goals` })
         );
 
       setResults(found.slice(0, 20));

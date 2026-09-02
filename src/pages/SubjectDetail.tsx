@@ -36,7 +36,7 @@ export default function SubjectDetail() {
 
   useEffect(() => {
     if (!subject && subjects.length > 0) {
-      navigate("/subjects");
+      navigate("/dashboard/subjects");
     }
   }, [subject, subjects, navigate]);
 
@@ -46,7 +46,7 @@ export default function SubjectDetail() {
         <div className="text-center">
           <BookOpen className="mx-auto size-12 text-muted-foreground/40" />
           <p className="mt-4 text-lg font-medium">Subject not found</p>
-          <Button variant="outline" className="mt-4" onClick={() => navigate("/subjects")}>
+          <Button variant="outline" className="mt-4" onClick={() => navigate("/dashboard/subjects")}>
             Back to Subjects
           </Button>
         </div>
@@ -66,7 +66,7 @@ export default function SubjectDetail() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate("/subjects")}>
+        <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard/subjects")}>
           <ArrowLeft className="size-4" />
         </Button>
         <div className="flex items-center gap-3">
