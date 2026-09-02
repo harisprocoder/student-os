@@ -497,9 +497,8 @@ export default function Dashboard() {
             <div className="flex items-center gap-2">
               <ClipboardList className="size-4 text-muted-foreground/60" />
               <h2 className="text-[13px] font-semibold">Upcoming Assignments</h2>
-            </div>
-            <Link
-              to="/assignments"
+            </div>              <Link
+              to="/dashboard/assignments"
               className="flex items-center gap-1 text-[11px] font-medium text-primary/80 transition-colors hover:text-primary"
             >
               View all
@@ -517,7 +516,7 @@ export default function Dashboard() {
                   No pending assignments
                 </p>
                 <Link
-                  to="/assignments"
+                  to="/dashboard/assignments"
                   className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-muted/50 px-3 py-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-muted"
                 >
                   <Plus className="size-3" />
@@ -567,9 +566,8 @@ export default function Dashboard() {
             <div className="flex items-center gap-2">
               <GraduationCap className="size-4 text-muted-foreground/60" />
               <h2 className="text-[13px] font-semibold">Upcoming Exams</h2>
-            </div>
-            <Link
-              to="/exams"
+            </div>              <Link
+              to="/dashboard/exams"
               className="flex items-center gap-1 text-[11px] font-medium text-primary/80 transition-colors hover:text-primary"
             >
               View all
@@ -587,7 +585,7 @@ export default function Dashboard() {
                   Nothing on the horizon
                 </p>
                 <Link
-                  to="/exams"
+                  to="/dashboard/exams"
                   className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-muted/50 px-3 py-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-muted"
                 >
                   <Plus className="size-3" />

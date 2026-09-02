@@ -106,7 +106,7 @@ export default function Notes() {
           whileHover="hover"
           whileTap="tap"
         >
-          <Button onClick={() => navigate("/notes/new")} className="gap-2">
+          <Button onClick={() => navigate("/dashboard/notes/new")} className="gap-2">
             <Plus className="size-4" />
             New Note
           </Button>
@@ -169,7 +169,7 @@ export default function Notes() {
           {!search && (
             <motion.div variants={emptyChild}>
               <Button
-                onClick={() => navigate("/notes/new")}
+                onClick={() => navigate("/dashboard/notes/new")}
                 className="mt-4 gap-2"
               >
                 <Plus className="size-4" /> New Note
@@ -200,7 +200,7 @@ export default function Notes() {
                   whileHover="hover"
                   whileTap="tap"
                   className="group rounded-xl border border-border/60 bg-card p-4 cursor-pointer"
-                  onClick={() => navigate(`/notes/${note.id}`)}
+                  onClick={() => navigate(`/dashboard/notes/${note.id}`)}
                 >
                   <div className="flex items-start justify-between">
                     <h3 className="text-sm font-semibold line-clamp-1">
@@ -289,7 +289,7 @@ export default function Notes() {
         <Button
           size="icon"
           className="size-14 rounded-full shadow-lg bg-indigo-500 hover:bg-indigo-600"
-          onClick={() => navigate("/notes/new")}
+          onClick={() => navigate("/dashboard/notes/new")}
         >
           <Plus className="size-6" />
         </Button>

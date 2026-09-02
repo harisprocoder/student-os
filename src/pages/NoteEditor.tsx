@@ -60,7 +60,7 @@ export default function NoteEditor() {
             archived: false,
           });
           // Navigate to the new note URL
-          navigate(`/notes/${newNote.id}`, { replace: true });
+          navigate(`/dashboard/notes/${newNote.id}`, { replace: true });
           // Update the ref to prevent re-initialization
         }
         setSaveStatus("saved");
@@ -114,7 +114,7 @@ export default function NoteEditor() {
             favorited: false,
             archived: false,
           });
-          navigate(`/notes/${newNote.id}`, { replace: true });
+          navigate(`/dashboard/notes/${newNote.id}`, { replace: true });
           setSaveStatus("saved");
           setTimeout(() => setSaveStatus("idle"), 1500);
         } catch {
@@ -142,7 +142,7 @@ export default function NoteEditor() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button
-            onClick={() => navigate("/notes")}
+            onClick={() => navigate("/dashboard/notes")}
             className="rounded-lg p-2 hover:bg-muted transition-colors"
           >
             <ArrowLeft className="size-4" />
